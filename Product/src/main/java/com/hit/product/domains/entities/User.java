@@ -35,7 +35,6 @@ public class User extends AbstractAuditingEntity {
     private String lastName;
 
     @Nationalized
-    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false, unique = true)
