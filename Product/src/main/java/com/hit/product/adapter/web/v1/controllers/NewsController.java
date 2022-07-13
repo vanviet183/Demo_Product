@@ -20,7 +20,7 @@ public class NewsController {
 
     @GetMapping("")
     public ResponseEntity<?> getNews() {
-        return VsResponseUtil.ok(newsService.getNews());
+        return ResponseEntity.ok().body(newsService.getNews());
     }
 
     @GetMapping("/{id}")

@@ -27,7 +27,6 @@ public class News extends AbstractAuditingEntity {
     String description;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
-    @JsonIgnore
     private List<Image> images;
 
 }
