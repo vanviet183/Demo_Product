@@ -29,7 +29,8 @@ public class NewsController {
     }
 
     @PostMapping(UrlConstant.News.DATA_NEWS_CREATE)
-    public ResponseEntity<?> createNews(@RequestBody NewsDto newsDto, List<MultipartFile> multipartFiles) {
+    public ResponseEntity<?> createNews(@RequestBody NewsDto newsDto,
+                                        @RequestParam("img") List<MultipartFile> multipartFiles) {
         return VsResponseUtil.ok(newsService.createNews(newsDto, multipartFiles));
     }
 //
