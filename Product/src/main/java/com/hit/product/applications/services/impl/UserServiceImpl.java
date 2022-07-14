@@ -3,12 +3,12 @@ package com.hit.product.applications.services.impl;
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
 import com.hit.product.applications.commons.AuthenticationProvider;
 import com.hit.product.applications.commons.ERole;
-import com.hit.product.applications.repositories.UserRepository;
-import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.applications.repositories.RoleRepository;
+import com.hit.product.applications.repositories.UserRepository;
 import com.hit.product.applications.repositories.VerificationTokenRepository;
 import com.hit.product.applications.services.UserService;
 import com.hit.product.applications.utils.UploadFile;
+import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.UserDto;
 import com.hit.product.domains.entities.User;
 import com.hit.product.domains.entities.Voucher;
@@ -19,7 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -134,6 +135,21 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findById(idUser);
         checkUserException(user);
         return user.get().getVouchers();
+    }
+
+    @Override
+    public TrueFalseResponse useVoucher(Long id, Long idVoucher) {
+        Optional<User> user = userRepository.findById(id);
+        checkUserException(user);
+        List<Voucher> vouchers = user.get().getVouchers();
+        vouchers.forEach(voucher -> {
+            // ktra id va validate voucher xem thoa man hay khong
+            if (voucher.getId().equals(idVoucher)) {
+                vouchers.remove(voucher);
+            }
+        });
+
+        return new TrueFalseResponse(true);
     }
 
     private void checkUserException(Optional<User> user) {

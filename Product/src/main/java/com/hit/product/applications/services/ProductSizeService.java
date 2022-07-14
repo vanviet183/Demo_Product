@@ -14,7 +14,7 @@ public interface ProductSizeService {
 
     ProductSize getProductSizeById(Long id);
 
-    List<ProductSize> createListProductSize(Long idProduct, List<ProductSizeDto> productSizeDtos);
+    List<ProductSize> createListProductSize(List<ProductSizeDto> productSizeDTOs);
 
     ProductSize updateProductSize(Long idProduct, Long id, ProductSizeDto productSizeDto);
 

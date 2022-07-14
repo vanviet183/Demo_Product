@@ -1,6 +1,8 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.EmailSenderService;
 import com.hit.product.applications.services.PasswordResetTokenService;
 import com.hit.product.applications.services.UserService;
@@ -12,12 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-@RestController
+@RestApiV1
 public class PasswordTokenController {
 
     @Autowired
@@ -32,12 +33,12 @@ public class PasswordTokenController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @PostMapping("/resetPassword")
+    @PostMapping(UrlConstant.PasswordResetToken.DATA_RESET_PASSWORD)
     public ResponseEntity<?> resetPassword(@RequestBody PasswordDto passwordDto, HttpServletRequest request) {
         return VsResponseUtil.ok(passwordResetTokenService.resetPassword(passwordDto, request));
     }
 
-    @PostMapping("/savePassword")
+    @PostMapping(UrlConstant.PasswordResetToken.DATA_SAVE_PASSWORD)
     public ResponseEntity<?> savePassword(@RequestParam String token, @RequestBody PasswordDto passwordDto) {
         String result = passwordResetTokenService.validatePasswordResetToken(token);
         if(!result.equalsIgnoreCase("valid")) {
@@ -52,7 +53,7 @@ public class PasswordTokenController {
         return VsResponseUtil.ok("Invalid token");
     }
 
-    @PostMapping("/changePassword")
+    @PostMapping(UrlConstant.PasswordResetToken.DATA_CHANGE_PASSWORD)
     public ResponseEntity<?> changePassword(@RequestBody PasswordDto passwordDto) {
         User user = userService.findUserByUsername(passwordDto.getUsername());
         if(!passwordResetTokenService.checkIfValidOldPassword(user, passwordDto.getOldPassword())) {

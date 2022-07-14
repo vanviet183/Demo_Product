@@ -1,6 +1,8 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.EmailSenderService;
 import com.hit.product.applications.services.VerificationTokenService;
 import com.hit.product.domains.entities.User;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RestController
+@RestApiV1
 public class VerifyTokenController {
 
     @Autowired
@@ -20,7 +22,7 @@ public class VerifyTokenController {
     @Autowired
     EmailSenderService emailSenderService;
 
-    @GetMapping("/verifyRegistration")
+    @GetMapping(UrlConstant.VerificationToken.DATA_VERIFICATION_TOKEN_VERIFY_REGISTRATION)
     public ResponseEntity<?> verifyRegistration(@RequestParam("token") String token) {
         String request = verificationTokenService.validateVerificationToken(token);
         if(request.equalsIgnoreCase("valid")) {
@@ -29,7 +31,7 @@ public class VerifyTokenController {
         return VsResponseUtil.ok("Bad User");
     }
 
-    @GetMapping("/verifyEmailNotification")
+    @GetMapping(UrlConstant.VerificationToken.DATA_VERIFICATION_TOKEN_VERIFY_EMAIL_NOTIFICATION)
     public ResponseEntity<?> verifyEmailNotification(@RequestParam("token") String token) {
         String request = verificationTokenService.validateVerificationEmailNotificationToken(token);
         if(request.equalsIgnoreCase("valid")) {
@@ -38,7 +40,7 @@ public class VerifyTokenController {
         return VsResponseUtil.ok("Error");
     }
 
-    @GetMapping("/resendVerifyToken")
+    @GetMapping(UrlConstant.VerificationToken.DATA_VERIFICATION_TOKEN_RESEND_VERIFY_TOKEN)
     public ResponseEntity<?> resendVerifyToken(@RequestParam("token") String oldToken, HttpServletRequest request) {
         VerificationToken verificationToken = verificationTokenService.generateNewVerificationToken(oldToken);
         User user = verificationToken.getUser();

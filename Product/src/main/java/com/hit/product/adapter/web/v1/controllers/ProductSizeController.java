@@ -1,35 +1,35 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.ProductSizeService;
 import com.hit.product.domains.dtos.ProductSizeDto;
-import com.hit.product.domains.entities.ProductSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/productSizes")
+@RestApiV1
 public class ProductSizeController {
 
     @Autowired
     ProductSizeService productSizeService;
 
-    @GetMapping("")
-    public ResponseEntity<?> getProductColors() {
+    @GetMapping(UrlConstant.ProductSize.DATA_PRODUCT_SIZE)
+    public ResponseEntity<?> getProductSizes() {
         return VsResponseUtil.ok(productSizeService.getAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductColor(@PathVariable("id") Long id) {
+    @GetMapping(UrlConstant.ProductSize.DATA_PRODUCT_SIZE_ID)
+    public ResponseEntity<?> getProductSize(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(productSizeService.getProductSizeById(id));
     }
 
-    @PostMapping("/{idProduct}")
-    public ResponseEntity<?> createProductColor(@PathVariable("idProduct") Long idProduct, @RequestBody List<ProductSizeDto> productSizeDtos) {
-        return VsResponseUtil.ok(productSizeService.createListProductSize(idProduct, productSizeDtos));
+    @PostMapping(UrlConstant.ProductSize.DATA_PRODUCT_SIZE_CREATE)
+    public ResponseEntity<?> createProductSize(@RequestBody List<ProductSizeDto> productSizeDTOs) {
+        return VsResponseUtil.ok(productSizeService.createListProductSize(productSizeDTOs));
     }
 
     @PatchMapping("/{idProduct}/{id}")

@@ -1,9 +1,10 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.NewsService;
 import com.hit.product.domains.dtos.NewsDto;
-import com.hit.product.domains.entities.News;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,39 +12,38 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/news")
+@RestApiV1
 public class NewsController {
 
     @Autowired
     NewsService newsService;
 
-    @GetMapping("")
+    @GetMapping(UrlConstant.News.DATA_NEWS)
     public ResponseEntity<?> getNews() {
-        return ResponseEntity.ok().body(newsService.getNews());
+        return VsResponseUtil.ok(newsService.getNews());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstant.News.DATA_NEWS_ID)
     public ResponseEntity<?> getNewsById(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(newsService.getNewsById(id));
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> createNews(@RequestBody NewsDto newsDto) {
-        return VsResponseUtil.ok(newsService.createNews(newsDto));
+    @PostMapping(UrlConstant.News.DATA_NEWS_CREATE)
+    public ResponseEntity<?> createNews(@RequestBody NewsDto newsDto, List<MultipartFile> multipartFiles) {
+        return VsResponseUtil.ok(newsService.createNews(newsDto, multipartFiles));
+    }
+//
+//    @PostMapping("/{id}/uploadImg")
+//    public ResponseEntity<?> uploadImg(@PathVariable("id") Long id, @RequestParam("imgNews") List<MultipartFile> multipartFiles) {
+//        return VsResponseUtil.ok(newsService.uploadImgNews(id, multipartFiles));
+//    }
+
+    @PatchMapping(UrlConstant.News.DATA_NEWS_ID)
+    public ResponseEntity<?> updateNews(@PathVariable("id") Long id, @RequestBody NewsDto newsDto, @RequestParam("imgNews") List<MultipartFile> multipartFiles) {
+        return VsResponseUtil.ok(newsService.updateNews(id, newsDto, multipartFiles));
     }
 
-    @PostMapping("/{id}/uploadImg")
-    public ResponseEntity<?> uploadImg(@PathVariable("id") Long id, @RequestParam("imgNews") List<MultipartFile> multipartFiles) {
-        return VsResponseUtil.ok(newsService.uploadImgNews(id, multipartFiles));
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> updateNews(@PathVariable("id") Long id, @RequestBody NewsDto newsDto) {
-        return VsResponseUtil.ok(newsService.updateNews(id, newsDto));
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstant.News.DATA_NEWS_ID)
     public ResponseEntity<?> deleteNews(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(newsService.deleteNews(id));
     }

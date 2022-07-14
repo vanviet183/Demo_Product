@@ -1,10 +1,10 @@
 package com.hit.product.applications.services.impl;
 
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
-import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.applications.repositories.BannerRepository;
 import com.hit.product.applications.services.BannerService;
 import com.hit.product.applications.utils.UploadFile;
+import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.BannerDto;
 import com.hit.product.domains.entities.Banner;
 import org.modelmapper.ModelMapper;
@@ -40,34 +40,29 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
-    public Banner uploadImgBanner(Long id, MultipartFile multipartFile) {
+    public Banner createBanner(BannerDto bannerDto, MultipartFile multipartFile) {
+        Banner banner = modelMapper.map(bannerDto, Banner.class);
+
+        uploadBanner(banner, multipartFile);
+
+        return bannerRepository.save(banner);
+    }
+
+    @Override
+    public Banner updateBanner(Long id, BannerDto bannerDto, MultipartFile multipartFile) {
         Optional<Banner> banner = bannerRepository.findById(id);
         checkBannerException(banner);
 
-        if(banner.get().getImgUrl() != null) {
-            uploadFile.removeFileFromUrl(banner.get().getImgUrl());
-        }
-        banner.get().setImgUrl(uploadFile.getUrlFromFile(multipartFile));
-
+        modelMapper.map(bannerDto, banner);
+        uploadBanner(banner.get(), multipartFile);
         return bannerRepository.save(banner.get());
     }
 
-    @Override
-    public Banner createBanner(BannerDto bannerDto) {
-        return createOrUpdate(new Banner(), bannerDto);
-    }
-
-    @Override
-    public Banner updateBanner(Long id, BannerDto bannerDto) {
-        Optional<Banner> banner = bannerRepository.findById(id);
-        checkBannerException(banner);
-
-        return createOrUpdate(banner.get(), bannerDto);
-    }
-
-    private Banner createOrUpdate(Banner banner, BannerDto bannerDto) {
-        modelMapper.map(bannerDto, banner);
-        return bannerRepository.save(banner);
+    private void uploadBanner(Banner banner, MultipartFile multipartFile) {
+        if(banner.getImgUrl() != null) {
+            uploadFile.removeFileFromUrl(banner.getImgUrl());
+        }
+        banner.setImgUrl(uploadFile.getUrlFromFile(multipartFile));
     }
 
     @Override

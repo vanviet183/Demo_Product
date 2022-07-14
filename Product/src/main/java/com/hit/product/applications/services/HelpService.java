@@ -15,7 +15,7 @@ public interface HelpService {
 
     Help getHelpById(Long id);
 
-    Help createHelp(HelpDto helpDto);
+    Help createHelp(Long idUser, HelpDto helpDto);
 
     Help updateHelp(Long id, HelpDto helpDto);
 

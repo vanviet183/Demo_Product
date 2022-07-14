@@ -1,11 +1,11 @@
 package com.hit.product.applications.services.impl;
 
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
-import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.applications.repositories.ImageRepository;
 import com.hit.product.applications.repositories.NewsRepository;
 import com.hit.product.applications.services.NewsService;
 import com.hit.product.applications.utils.UploadFile;
+import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.NewsDto;
 import com.hit.product.domains.entities.Image;
 import com.hit.product.domains.entities.News;
@@ -46,41 +46,50 @@ public class NewsServiceImpl implements NewsService {
         return news.get();
     }
 
-    @Override
-    @Transactional
-    public List<Image> uploadImgNews(Long id, List<MultipartFile> multipartFiles) {
-        Optional<News> news = newsRepository.findById(id);
-        checkNewsException(news);
+//    @Override
+//    @Transactional
+//    public List<Image> uploadImgNews(Long id, List<MultipartFile> multipartFiles) {
+//        Optional<News> news = newsRepository.findById(id);
+//        checkNewsException(news);
+//
+//        List<Image> imageList = new ArrayList<>();
+//        multipartFiles.forEach(multipartFile -> {
+//            imageList.add(createImgNews(news.get(), new Image(), multipartFile));
+//        });
+//        return imageList;
+//    }
 
-        List<Image> imageList = new ArrayList<>();
-        multipartFiles.forEach(multipartFile -> {
-            imageList.add(createImgNews(news.get(), new Image(), multipartFile));
-        });
-        return imageList;
-    }
-
-    public Image createImgNews(News news, Image image, MultipartFile multipartFile) {
+    public Image createImgNews(Image image, MultipartFile multipartFile) {
         image.setImageUrl(uploadFile.getUrlFromFile(multipartFile));
-        image.setNews(news);
         return imageRepository.save(image);
     }
 
     @Override
-    public News createNews(NewsDto newsDto) {
-        return createOrUpdate(new News(), newsDto);
+    @Transactional
+    public News createNews(NewsDto newsDto, List<MultipartFile> multipartFiles) {
+        News news = modelMapper.map(newsDto, News.class);
+
+        List<Image> imageList = new ArrayList<>();
+        multipartFiles.forEach(multipartFile -> {
+            imageList.add(createImgNews(new Image(), multipartFile));
+        });
+        news.setImages(imageList);
+        return newsRepository.save(news);
     }
 
     @Override
-    public News updateNews(Long id, NewsDto newsDto) {
+    @Transactional
+    public News updateNews(Long id, NewsDto newsDto, List<MultipartFile> multipartFiles) {
         Optional<News> news = newsRepository.findById(id);
         checkNewsException(news);
 
-        return createOrUpdate(news.get(), newsDto);
-    }
-
-    private News createOrUpdate(News news, NewsDto newsDto) {
-        modelMapper.map(newsDto, news);
-        return newsRepository.save(news);
+        modelMapper.map(newsDto, news.get());
+        List<Image> imageList = new ArrayList<>();
+        multipartFiles.forEach(multipartFile -> {
+            imageList.add(createImgNews(new Image(), multipartFile));
+        });
+        news.get().setImages(imageList);
+        return newsRepository.save(news.get());
     }
 
     @Override

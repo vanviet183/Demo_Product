@@ -1,9 +1,12 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.ProductService;
 import com.hit.product.domains.dtos.ProductDto;
-import com.hit.product.domains.entities.Product;
+import com.hit.product.domains.entities.ProductColor;
+import com.hit.product.domains.entities.ProductSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,79 +14,67 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/products")
+@RestApiV1
 public class ProductController {
 
     @Autowired
     ProductService productService;
 
-    @GetMapping("")
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT)
     public ResponseEntity<?> getProducts(@RequestParam("page") Integer page) {
         return ResponseEntity.ok().body(productService.getAllByPage(page));
     }
 
-    @GetMapping("/news")
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT_NEWS)
     public ResponseEntity<?> getProductsNewest(@RequestParam("page") Integer page) {
         return ResponseEntity.ok().body(productService.getProductsNewest(page));
     }
 
-    @GetMapping("/sell")
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT_SELL_BEST)
     public ResponseEntity<?> getProductsBestSeller(@RequestParam("page") Integer page) {
         return ResponseEntity.ok().body(productService.getProductsBestSeller(page));
     }
 
-    @GetMapping("/sort/{numb}")
-    public ResponseEntity<?> getProductsSort(@PathVariable("numb") Long numb) {
-        return ResponseEntity.ok().body(productService.getProductsSort(numb));
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT_SORT)
+    public ResponseEntity<?> getProductsSort(@RequestParam("by") String type) {
+        return ResponseEntity.ok().body(productService.getProductsSort(type));
     }
 
-    @GetMapping("/size/{value}")
-    public ResponseEntity<?> getProductsBySize(@PathVariable("value") Integer value) {
-        return ResponseEntity.ok().body(productService.getProductsBySize(value));
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT_FILTER)
+    public ResponseEntity<?> getProductsByFilter(@RequestParam("type") List<String> types,
+                                                 @RequestParam("size") List<Integer> sizes,
+                                                 @RequestParam("color") List<String> colors,
+                                                 @RequestParam("brand") List<String> brands) {
+        return ResponseEntity.ok().body(productService.getProductsByFilter(types, sizes, colors, brands));
     }
 
-    @GetMapping("/colors")
-    public ResponseEntity<?> getProductsByColor(@RequestParam("color") String color) {
-        return ResponseEntity.ok().body(productService.getProductsByColor(color));
-    }
-
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstant.Product.DATA_PRODUCT_ID)
     public ResponseEntity<?> getProduct(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productService.getProductById(id));
     }
 
-    @GetMapping("/{id}/images")
-    public ResponseEntity<?> getProductImages(@PathVariable("id") Long id) {
-        return VsResponseUtil.ok(productService.getImageByProductId(id));
+    @PostMapping(UrlConstant.Product.DATA_PRODUCT_CREATE)
+    public ResponseEntity<?> createProduct(@PathVariable("idCategory") Long idCategory,
+                                           @RequestBody ProductDto productDto,
+                                           @RequestBody List<ProductColor> productColors,
+                                           @RequestBody List<ProductSize> productSizes,
+                                           @RequestParam("img") List<MultipartFile> multipartFiles) {
+        return VsResponseUtil.ok(productService.createProduct(idCategory, productDto, productColors, productSizes, multipartFiles));
     }
 
-    @PostMapping("/{idCategory}")
-    public ResponseEntity<?> createProduct(@PathVariable("idCategory") Long idCategory, @RequestBody ProductDto productDto) {
-        return VsResponseUtil.ok(productService.createProduct(idCategory, productDto));
+    @PostMapping(UrlConstant.Product.DATA_PRODUCT_SEARCH)
+    public ResponseEntity<?> searchProducts(@RequestParam("key") String key) {
+        return VsResponseUtil.ok(productService.searchProducts(key));
     }
 
-//    @PostMapping("/{idCategory}")
-//    public ResponseEntity<?> addProductToBill(@PathVariable("idCategory") Long idCategory, @RequestBody ProductDto productDto) {
-//        return VsResponseUtil.ok(productService.createProduct(idCategory, productDto));
-//    }
-
-    @PostMapping("/search")
-    public ResponseEntity<?> searchProducts(@RequestParam("nameProduct") String nameProduct) {
-        return VsResponseUtil.ok(productService.searchProducts(nameProduct));
+    @PatchMapping(UrlConstant.Product.DATA_PRODUCT_ID)
+    public ResponseEntity<?> updateProduct(@PathVariable("id") Long id,
+                                           @RequestBody ProductDto productDto,
+                                           @RequestParam("img") List<MultipartFile> multipartFiles) {
+        return VsResponseUtil.ok(productService.updateProduct(id, productDto, multipartFiles));
     }
 
-    @PostMapping("/{id}/uploadImg")
-    public ResponseEntity<?> uploadProductImage(@PathVariable("id") Long id, @RequestParam("imgProduct") List<MultipartFile> multipartFiles) {
-        return VsResponseUtil.ok(productService.uploadProductImages(id, multipartFiles));
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDto productDto) {
-        return VsResponseUtil.ok(productService.updateProduct(id, productDto));
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstant.Product.DATA_PRODUCT_ID)
     public ResponseEntity<?> deleteProduct(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(productService.deleteProduct(id));
     }

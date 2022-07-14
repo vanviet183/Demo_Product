@@ -15,11 +15,9 @@ public interface BannerService {
 
     Banner getBannerById(Long id);
 
-    Banner uploadImgBanner(Long id, MultipartFile multipartFile);
+    Banner createBanner(BannerDto bannerDto, MultipartFile multipartFile);
 
-    Banner createBanner(BannerDto bannerDto);
-
-    Banner updateBanner(Long id, BannerDto bannerDto);
+    Banner updateBanner(Long id, BannerDto bannerDto, MultipartFile multipartFile);
 
     TrueFalseResponse deleteBanner(Long id);
 

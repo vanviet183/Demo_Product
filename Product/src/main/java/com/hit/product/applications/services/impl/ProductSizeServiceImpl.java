@@ -1,12 +1,10 @@
 package com.hit.product.applications.services.impl;
 
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
-import com.hit.product.configs.exceptions.NotFoundException;
-import com.hit.product.applications.repositories.ProductRepository;
 import com.hit.product.applications.repositories.ProductSizeRepository;
 import com.hit.product.applications.services.ProductSizeService;
+import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.ProductSizeDto;
-import com.hit.product.domains.entities.Product;
 import com.hit.product.domains.entities.ProductSize;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +20,6 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
     @Autowired
     ProductSizeRepository productSizeRepository;
-
-    @Autowired
-    ProductRepository productRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -43,32 +38,24 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
     @Override
     @Transactional
-    public List<ProductSize> createListProductSize(Long idProduct, List<ProductSizeDto> productSizeDtos) {
-        Optional<Product> product = productRepository.findById(idProduct);
-        checkProductException(product);
-
+    public List<ProductSize> createListProductSize(List<ProductSizeDto> productSizeDTOs) {
         List<ProductSize> productSizes = new ArrayList<>();
-        productSizeDtos.forEach(productSizeDto -> {
-            productSizes.add(createOrUpdate(product.get(), new ProductSize(), productSizeDto));
+        productSizeDTOs.forEach(productSizeDto -> {
+            productSizes.add(createOrUpdate(new ProductSize(), productSizeDto));
         });
         return productSizes;
     }
 
     @Override
     public ProductSize updateProductSize(Long idProduct, Long id, ProductSizeDto productSizeDto) {
-        Optional<Product> product = productRepository.findById(idProduct);
-        checkProductException(product);
-
         Optional<ProductSize> productSize = productSizeRepository.findById(id);
         checkProductSizeException(productSize);
 
-        return createOrUpdate(product.get(), productSize.get(), productSizeDto);
+        return createOrUpdate(productSize.get(), productSizeDto);
     }
 
-    private ProductSize createOrUpdate(Product product, ProductSize productSize, ProductSizeDto productSizeDto) {
+    private ProductSize createOrUpdate(ProductSize productSize, ProductSizeDto productSizeDto) {
         modelMapper.map(productSizeDto, productSize);
-        productSize.setProduct(product);
-
         return productSizeRepository.save(productSize);
     }
 
@@ -79,12 +66,6 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
     private void checkProductSizeException(Optional<ProductSize> productSize) {
         if(productSize.isEmpty()) {
-            throw new NotFoundException("Not Found");
-        }
-    }
-
-    private void checkProductException(Optional<Product> product) {
-        if(product.isEmpty()) {
             throw new NotFoundException("Not Found");
         }
     }

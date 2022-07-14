@@ -8,7 +8,6 @@ import com.hit.product.domains.entities.Voucher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service
@@ -37,4 +36,6 @@ public interface UserService {
     void updateUserAfterOAuthLoginSuccess(User user, String name, AuthenticationProvider provider);
 
     List<Voucher> getListVoucher(Long idUser);
+
+    TrueFalseResponse useVoucher(Long id, Long idVoucher);
 }

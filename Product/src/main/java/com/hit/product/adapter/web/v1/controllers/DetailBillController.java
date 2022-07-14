@@ -1,6 +1,8 @@
 package com.hit.product.adapter.web.v1.controllers;
 
+import com.hit.product.adapter.web.base.RestApiV1;
 import com.hit.product.adapter.web.base.VsResponseUtil;
+import com.hit.product.applications.constants.UrlConstant;
 import com.hit.product.applications.services.DetailBillService;
 import com.hit.product.domains.dtos.BillDto;
 import com.hit.product.domains.dtos.DetailBillDto;
@@ -8,19 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1/detail_bills")
+@RestApiV1
 public class DetailBillController {
 
     @Autowired
     DetailBillService detailBillService;
 
-    @GetMapping("")
+    @GetMapping(UrlConstant.DetailBill.DATA_DETAIL_BILL)
     public ResponseEntity<?> getDetailBills() {
         return VsResponseUtil.ok(detailBillService.getDetailBills());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstant.DetailBill.DATA_DETAIL_BILL_ID)
     public ResponseEntity<?> getDetailBillById(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(detailBillService.getDetailBillById(id));
     }
@@ -30,17 +31,12 @@ public class DetailBillController {
 //        return VsResponseUtil.ok(detailBillService.createDetailBill(idBill, idProduct, detailBillDto));
 //    }
 
-    @PostMapping("/{idProduct}")
+    @PostMapping(UrlConstant.DetailBill.DATA_DETAIL_BILL_CREATE)
     public ResponseEntity<?> createDetailBill(@PathVariable("idProduct") Long idProduct, @RequestBody DetailBillDto detailBillDto) {
         return VsResponseUtil.ok(detailBillService.createDetailBill(idProduct, detailBillDto));
     }
 
-//    @PostMapping("")
-//    public ResponseEntity<?> createDetailBill(@RequestBody DetailBillDto detailBillDto) {
-//        return VsResponseUtil.ok(detailBillService.createDetailBill(detailBillDto));
-//    }
-
-    @PatchMapping("/{id}")
+    @PatchMapping(UrlConstant.DetailBill.DATA_DETAIL_BILL_ID)
     public ResponseEntity<?> updateDetailBill(@PathVariable("id") Long id, @RequestBody DetailBillDto detailBillDto) {
         return VsResponseUtil.ok(detailBillService.updateDetailBill(id, detailBillDto));
     }
@@ -50,7 +46,7 @@ public class DetailBillController {
         return VsResponseUtil.ok(detailBillService.pay(idDetailBill, billDto));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstant.DetailBill.DATA_DETAIL_BILL_ID)
     public ResponseEntity<?> deleteDetailBill(@PathVariable("id") Long id) {
         return VsResponseUtil.ok(detailBillService.deleteDetailBill(id));
     }

@@ -3,14 +3,13 @@ package com.hit.product.applications.services.impl;
 import com.github.slugify.Slugify;
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
 import com.hit.product.applications.repositories.*;
-import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.applications.services.ProductService;
 import com.hit.product.applications.utils.UploadFile;
+import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.ProductDto;
 import com.hit.product.domains.entities.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -66,6 +65,8 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll(PageRequest.of(page, 10, Sort.by("amountSell").descending())).getContent();
     }
 
+
+
     @Override
     public Product getProductById(Long id) {
         Optional<Product> product = productRepository.findById(id);
@@ -82,12 +83,40 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product createProduct(Long idCategory, ProductDto productDto) {
-        return createOrUpdate(idCategory, new Product(), productDto);
+    @Transactional
+    public Product createProduct(Long idCategory,
+                                 ProductDto productDto,
+                                 List<ProductColor> productColors,
+                                 List<ProductSize> productSizes,
+                                 List<MultipartFile> multipartFiles) {
+        Optional<Category> category = categoryRepository.findById(idCategory);
+        checkCategoryException(category);
+
+        Product product = modelMapper.map(productDto, Product.class);
+
+        Slugify slug = new Slugify();
+        String result = slug.slugify(productDto.getTitle());
+        product.setSlug(result);
+
+        product.setProductColors(productColors);
+        product.setProductSizes(productSizes);
+
+        multipartFiles.forEach(multipartFile -> {
+            createImgProduct(product, new Image(), multipartFile);
+        });
+
+        return productRepository.save(product);
+    }
+
+    public void createImgProduct(Product product, Image image, MultipartFile multipartFile) {
+        image.setImageUrl(uploadFile.getUrlFromFile(multipartFile));
+        image.setProduct(product);
+        imageRepository.save(image);
     }
 
     @Override
-    public Product updateProduct(Long id, ProductDto productDto) {
+    @Transactional
+    public Product updateProduct(Long id, ProductDto productDto, List<MultipartFile> multipartFiles) {
         Optional<Product> product = productRepository.findById(id);
         checkProductException(product);
         modelMapper.map(productDto, product.get());
@@ -96,22 +125,13 @@ public class ProductServiceImpl implements ProductService {
         String result = slug.slugify(productDto.getTitle());
         product.get().setSlug(result);
 
+        imageRepository.deleteAll(product.get().getImages());
+
+        multipartFiles.forEach(multipartFile -> {
+            createImgProduct(product.get(), new Image(), multipartFile);
+        });
+
         return productRepository.save(product.get());
-    }
-
-    private Product createOrUpdate(Long idCategory, Product product, ProductDto productDto) {
-        Optional<Category> category = categoryRepository.findById(idCategory);
-        checkCategoryException(category);
-
-        modelMapper.map(productDto, product);
-
-        Slugify slug = new Slugify();
-        String result = slug.slugify(productDto.getTitle());
-        product.setSlug(result);
-
-        product.setCategory(category.get());
-
-        return productRepository.save(product);
     }
 
     @Override
@@ -130,62 +150,58 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findBySlugContaining(result);
     }
 
-    @Override
-    @Transactional
-    public List<Image> uploadProductImages(Long id, List<MultipartFile> multipartFiles) {
-        Optional<Product> product = productRepository.findById(id);
-        checkProductException(product);
-
-        List<Image> imageList = new ArrayList<>();
-        multipartFiles.forEach(multipartFile -> {
-            imageList.add(createImgProduct(product.get(), new Image(), multipartFile));
-        });
-        return imageList;
-    }
-
-
     // Sort
     @Override
-    public List<Product> getProductsSort(Long numb) {
-        List<Product> products = new ArrayList<>();
-        if (numb == 1) {
-            return productRepository.findAll(PageRequest.of(1, 10, Sort.by("title").ascending())).getContent();
-        } else if (numb == 2) {
-            return productRepository.findAll(PageRequest.of(1, 10, Sort.by("title").descending())).getContent();
-        } else if (numb == 3) {
-            return productRepository.findAll(PageRequest.of(1, 10, Sort.by("price").ascending())).getContent();
-        } else if (numb == 4) {
-            return productRepository.findAll(PageRequest.of(1, 10, Sort.by("price").descending())).getContent();
+    public List<Product> getProductsSort(String type) {
+        switch (type) {
+            case "new":
+                return productRepository.findAll(PageRequest.of(1, 10, Sort.by("title").ascending())).getContent();
+            case "hot":
+                return productRepository.findAll(PageRequest.of(1, 10, Sort.by("title").descending())).getContent();
+            case "price-asc":
+                return productRepository.findAll(PageRequest.of(1, 10, Sort.by("price").ascending())).getContent();
+            case "price-des":
+                return productRepository.findAll(PageRequest.of(1, 10, Sort.by("price").descending())).getContent();
+            default:
+                return productRepository.findAll();
         }
-        return productRepository.findAll();
     }
 
     @Override
-    public List<Product> getProductsBySize(Integer value) {
-        List<ProductSize> productSizes = productSizeRepository.findByValue(value);
+    public List<Product> getProductsByFilter(List<String> types, List<Integer> sizes, List<String> colors, List<String> brands) {
         List<Product> products = new ArrayList<>();
-        productSizes.forEach(item -> {
-            products.add(item.getProduct());
-        });
-        return products;
-    }
 
-    @Override
-    public List<Product> getProductsByColor(String color) {
+        // Filter by type
+        types.forEach(type -> {
+            List<Product> productsTypeTrue = productRepository.findByType(type);
+            products.addAll(productsTypeTrue);
+        });
+
+        // Filter by size
+        sizes.forEach(size -> {
+            List<ProductSize> productSizes = productSizeRepository.findByValue(size);
+            productSizes.forEach(productSize -> {
+                products.add(productSize.getProduct());
+            });
+        });
+
+        // Filter by color
         Slugify slug = new Slugify();
-        String result = slug.slugify(color);
-        List<ProductColor> productColors = productColorRepository.findBySlug(result);
-        List<Product> products = new ArrayList<>();
-        productColors.forEach(item -> {
-            products.add(item.getProduct());
+        colors.forEach(color -> {
+            String result = slug.slugify(color);
+            List<ProductColor> productColors = productColorRepository.findBySlug(result);
+            productColors.forEach(productColor -> {
+                products.add(productColor.getProduct());
+            });
         });
-        return products;
-    }
 
-    public Image createImgProduct(Product product, Image image, MultipartFile multipartFile) {
-        image.setImageUrl(uploadFile.getUrlFromFile(multipartFile));
-        image.setProduct(product);
-        return imageRepository.save(image);
+        // Filter by brand
+        brands.forEach(brand -> {
+            List<Product> productsBrandTrue = productRepository.findByType(brand);
+            products.addAll(productsBrandTrue);
+        });
+
+        return products;
     }
 
     private void checkCategoryException(Optional<Category> category) {

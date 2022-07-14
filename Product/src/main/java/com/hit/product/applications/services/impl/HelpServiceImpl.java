@@ -2,10 +2,12 @@ package com.hit.product.applications.services.impl;
 
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
 import com.hit.product.applications.repositories.HelpRepository;
+import com.hit.product.applications.repositories.UserRepository;
 import com.hit.product.applications.services.HelpService;
 import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.HelpDto;
 import com.hit.product.domains.entities.Help;
+import com.hit.product.domains.entities.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class HelpServiceImpl implements HelpService {
 
     @Autowired
     HelpRepository helpRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -35,20 +40,22 @@ public class HelpServiceImpl implements HelpService {
     }
 
     @Override
-    public Help createHelp(HelpDto helpDto) {
-        return createOrUpdate(new Help(), helpDto);
+    public Help createHelp(Long idUser, HelpDto helpDto) {
+        Optional<User> user = userRepository.findById(idUser);
+        checkUserException(user);
+
+        Help help = modelMapper.map(helpDto, Help.class);
+        help.setUser(user.get());
+        return helpRepository.save(help);
     }
 
     @Override
     public Help updateHelp(Long id, HelpDto helpDto) {
         Optional<Help> help = helpRepository.findById(id);
         checkHelpException(help);
-        return createOrUpdate(help.get(), helpDto);
-    }
 
-    private Help createOrUpdate(Help help, HelpDto helpDto) {
-        modelMapper.map(helpDto, help);
-        return helpRepository.save(help);
+        modelMapper.map(helpDto, help.get());
+        return helpRepository.save(help.get());
     }
 
     @Override
@@ -61,6 +68,12 @@ public class HelpServiceImpl implements HelpService {
 
     private void checkHelpException(Optional<Help> help) {
         if(help.isEmpty()) {
+            throw new NotFoundException("Not Found");
+        }
+    }
+
+    private void checkUserException(Optional<User> user) {
+        if(user.isEmpty()) {
             throw new NotFoundException("Not Found");
         }
     }

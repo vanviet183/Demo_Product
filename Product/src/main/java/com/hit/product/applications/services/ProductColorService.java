@@ -14,9 +14,9 @@ public interface ProductColorService {
 
     ProductColor getProductColorById(Long id);
 
-    List<ProductColor> createListProductColor(Long idProduct, List<ProductColorDto> productColorDto);
+    List<ProductColor> createListProductColor(List<ProductColorDto> productColorDto);
 
-    ProductColor updateProductColor(Long idProduct, Long id, ProductColorDto productColorDto);
+    ProductColor updateProductColor(Long id, ProductColorDto productColorDto);
 
     TrueFalseResponse deleteProductColor(Long id);
 }
