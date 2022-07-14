@@ -8,7 +8,6 @@ import com.hit.product.applications.services.CommentService;
 import com.hit.product.configs.exceptions.NotFoundException;
 import com.hit.product.domains.dtos.CommentDto;
 import com.hit.product.domains.entities.Comment;
-import com.hit.product.domains.entities.Product;
 import com.hit.product.domains.entities.ProductRate;
 import com.hit.product.domains.entities.User;
 import org.modelmapper.ModelMapper;

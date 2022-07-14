@@ -2,17 +2,11 @@ package com.hit.product.applications.services.impl;
 
 import com.hit.product.adapter.web.v1.transfer.parameters.auth.AuthenticationRequest;
 import com.hit.product.adapter.web.v1.transfer.responses.AuthenticationResponse;
-import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
-import com.hit.product.applications.commons.AuthenticationProvider;
-import com.hit.product.applications.commons.ERole;
-import com.hit.product.applications.repositories.RoleRepository;
 import com.hit.product.applications.repositories.UserRepository;
 import com.hit.product.applications.services.AuthService;
 import com.hit.product.applications.services.MyUserDetailsService;
-import com.hit.product.applications.services.UserService;
 import com.hit.product.applications.utils.JwtUtil;
 import com.hit.product.configs.exceptions.VsException;
-import com.hit.product.domains.dtos.UserDto;
 import com.hit.product.domains.entities.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class AuthServiceImp implements AuthService {

@@ -1,10 +1,5 @@
 package com.hit.product.configs.oauth2;
 
-import com.hit.product.applications.commons.AuthenticationProvider;
-import com.hit.product.applications.repositories.UserRepository;
-import com.hit.product.applications.services.UserService;
-import com.hit.product.domains.entities.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;

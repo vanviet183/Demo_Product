@@ -5,7 +5,6 @@ import com.hit.product.applications.repositories.RoleRepository;
 import com.hit.product.applications.repositories.UserRepository;
 import com.hit.product.domains.entities.Role;
 import com.hit.product.domains.entities.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,15 +14,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-@SpringBootApplication
+@SpringBootApplication()
 @EnableScheduling
 public class ProductSpringBootApplication {
 
-    @Autowired
-    RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    public ProductSpringBootApplication(RoleRepository roleRepository, UserRepository userRepository) {
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(ProductSpringBootApplication.class, args);

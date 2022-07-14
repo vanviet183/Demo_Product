@@ -5,9 +5,11 @@ import com.hit.product.adapter.web.v1.transfer.responses.AuthenticationResponse;
 import com.hit.product.adapter.web.v1.transfer.responses.TrueFalseResponse;
 import com.hit.product.configs.exceptions.VsException;
 import com.hit.product.domains.dtos.UserDto;
+import org.springframework.stereotype.Service;
 
 import java.io.InvalidObjectException;
 
+@Service
 public interface AuthService {
 
   AuthenticationResponse login(AuthenticationRequest request) throws VsException;

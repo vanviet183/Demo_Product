@@ -2,7 +2,6 @@ package com.hit.product.applications.filters;
 
 import com.hit.product.applications.services.MyUserDetailsService;
 import com.hit.product.applications.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,11 +19,13 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    @Autowired
-    JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
+    private final MyUserDetailsService userDetailsService;
 
-    @Autowired
-    MyUserDetailsService userDetailsService;
+    public JwtRequestFilter(JwtUtil jwtUtil, MyUserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
